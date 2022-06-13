@@ -13,10 +13,10 @@ public class PhoneDao {
 
 	private String id = "phonedb";
 	private String pw = "phonedb";
-	private Connection conn = null;
-	private PreparedStatement pstmt = null;
+	private Connection conn;
+	private PreparedStatement pstmt;
 	private String url = "jdbc:oracle:thin:@localhost:1521:xe";
-	private ResultSet rs = null;
+	private ResultSet rs;
 	private int count = 0;
 
 	public void getConnection() {
@@ -55,8 +55,8 @@ public class PhoneDao {
 
 			// SQL문 준비
 			String query = "";
-			query += "create table person(\r\n" + "    person_id number(5)\r\n" + "    ,name varchar2(30) not null\r\n"
-					+ "    ,hp varchar2(20)\r\n" + "    ,company varchar2(20)\r\n" + "    ,primary key(person_id)\r\n)";
+			query += "create table person( " + "    person_id number(5) " + "    ,name varchar2(30) not null "
+					+ "    ,hp varchar2(20) " + "    ,company varchar2(20) " + "    ,primary key(person_id) )";
 			System.out.println(query);
 
 			// 바인딩
@@ -103,9 +103,9 @@ public class PhoneDao {
 
 			// SQL문 준비
 			String query = "";
-			query += ("create sequence seq_person_id\r\n"
-					+ "increment by 1\r\n"
-					+ "start with 1\r\n"
+			query += ("create sequence seq_person_id "
+					+ "increment by 1 "
+					+ "start with 1 "
 					+ "nocache");
 
 			// 바인딩
@@ -321,8 +321,8 @@ public class PhoneDao {
 		Close();
 		return count;
 	}
-
-	public void Search(String str) {
+	
+	public List<PersonVo> Search(PersonVo pVo) {
 		List<PersonVo> personList = new ArrayList<PersonVo>();
 		try {
 			getConnection();
@@ -330,12 +330,56 @@ public class PhoneDao {
 			// 3. SQL문 준비 / 바인딩 / 실행
 
 			// SQL문 준비
-			String query = "";
-			query += "select ";
-			query += "person_id, name, hp, company";
-			query += "from person ";
+			String query = "select person_id "
+					+ "    ,name "
+					+ "    ,hp "
+					+ "    ,company "
+					+ "from person "
+					+ "where name like '%'||? "
+					+ "and (hp like '%'||? "
+					+ "or hp like '%'||?||'%' "
+					+ "or hp like ?||'%') "
+					+ "and (company like '%'||? "
+					+ "or company like '%'||?||'%' "
+					+ "or company like ?||'%') "
+					+ "or name like '%'||?||'%' "
+					+ "and (hp like '%'||? "
+					+ "or hp like '%'||?||'%' "
+					+ "or hp like ?||'%') "
+					+ "and (company like '%'||? "
+					+ "or company like '%'||?||'%' "
+					+ "or company like ?||'%') "
+					+ "or name like ?||'%' "
+					+ "and (hp like '%'||? "
+					+ "or hp like '%'||?||'%' "
+					+ "or hp like ?||'%') "
+					+ "and (company like '%'||? "
+					+ "or company like '%'||?||'%' "
+					+ "or company like ?||'%') ";
+					
 
 			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, pVo.name);
+			pstmt.setString(2, pVo.hp);
+			pstmt.setString(3, pVo.hp);
+			pstmt.setString(4, pVo.hp);
+			pstmt.setString(5, pVo.company);
+			pstmt.setString(6, pVo.company);
+			pstmt.setString(7, pVo.company);
+			pstmt.setString(8, pVo.name);
+			pstmt.setString(9, pVo.hp);
+			pstmt.setString(10, pVo.hp);
+			pstmt.setString(11, pVo.hp);
+			pstmt.setString(12, pVo.company);
+			pstmt.setString(13, pVo.company);
+			pstmt.setString(14, pVo.company);
+			pstmt.setString(15, pVo.name);
+			pstmt.setString(16, pVo.hp);
+			pstmt.setString(17, pVo.hp);
+			pstmt.setString(18, pVo.hp);
+			pstmt.setString(19, pVo.company);
+			pstmt.setString(20, pVo.company);
+			pstmt.setString(21, pVo.company);
 
 			rs = pstmt.executeQuery();
 
@@ -348,50 +392,126 @@ public class PhoneDao {
 				personList.add(personVo);
 			}
 
-			for (int i = 0; i < personList.size(); i++) {
-				if (personList.get(i).toString().contains(str)) {
-					System.out.println(personList.get(i).toString());
-				}
-			}
 		} catch (SQLException e) {
 			System.out.println("error:" + e);
 		}
 		Close();
+		return personList;
 	}
 
-	public void Search(int num) {
-		List<PersonVo> personList = new ArrayList<PersonVo>();
-		try {
-			getConnection();
-			// 3. SQL문 준비 / 바인딩 / 실행
-
-			// SQL문 준비
-			String query = "";
-			query += "select ";
-			query += "person_id, name, hp, company";
-			query += "from person ";
-
-			pstmt = conn.prepareStatement(query);
-
-			rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				int personId = rs.getInt(1);
-				String name = rs.getString(2);
-				String hp = rs.getString(3);
-				String company = rs.getString(4);
-				PersonVo personVo = new PersonVo(personId, name, hp, company);
-				personList.add(personVo);
-			}
-			String num2 = num + "";
-			for (int i = 0; i < personList.size(); i++) {
-				if (personList.get(i).toString().contains(num2)) {
-					System.out.println(personList.get(i).toString());
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-		Close();
-	}
+//	public List<PersonVo> SearchName(String str) {
+//		List<PersonVo> personList = new ArrayList<PersonVo>();
+//		try {
+//			getConnection();
+//
+//			// 3. SQL문 준비 / 바인딩 / 실행
+//
+//			// SQL문 준비
+//			String query = "select person_id "
+//					+ "    ,name "
+//					+ "    ,hp "
+//					+ "    ,company "
+//					+ "from person "
+//					+ "where name like '%'||? "
+//					+ "or name like '%'||?||'%' "
+//					+ "or name like ?||'%' ";
+//
+//			pstmt = conn.prepareStatement(query);
+//			pstmt.setString(1, str);
+//			pstmt.setString(2, str);
+//			pstmt.setString(3, str);
+//
+//			rs = pstmt.executeQuery();
+//
+//			while (rs.next()) {
+//				int personId = rs.getInt(1);
+//				String name = rs.getString(2);
+//				String hp = rs.getString(3);
+//				String company = rs.getString(4);
+//				PersonVo personVo = new PersonVo(personId, name, hp, company);
+//				personList.add(personVo);
+//			}
+//
+//		} catch (SQLException e) {
+//			System.out.println("error:" + e);
+//		}
+//		Close();
+//		return personList;
+//	}
+//
+//	public List<PersonVo> SearchHp(String str) {
+//		List<PersonVo> personList = new ArrayList<PersonVo>();
+//		try {
+//			getConnection();
+//			// 3. SQL문 준비 / 바인딩 / 실행
+//
+//			// SQL문 준비
+//			String query = "";
+//			query += "select ";
+//			query += "person_id, name, hp, company";
+//			query += "from person ";
+//			query += "where hp like ?'%' ";
+//			query += "or hp like '%'? ";
+//			query += "or hp like '%'?'%' ";
+//
+//			pstmt = conn.prepareStatement(query);
+//			pstmt.setString(1, str);
+//			pstmt.setString(2, str);
+//			pstmt.setString(3, str);
+//
+//			rs = pstmt.executeQuery();
+//
+//			while (rs.next()) {
+//				int personId = rs.getInt(1);
+//				String name = rs.getString(2);
+//				String hp = rs.getString(3);
+//				String company = rs.getString(4);
+//				PersonVo personVo = new PersonVo(personId, name, hp, company);
+//				personList.add(personVo);
+//			}
+//			
+//		} catch (SQLException e) {
+//			System.out.println("error:" + e);
+//		}
+//		Close();
+//		return personList;
+//	}
+//	public List<PersonVo> SearchCompany(String str) {
+//		List<PersonVo> personList = new ArrayList<PersonVo>();
+//		try {
+//			getConnection();
+//			// 3. SQL문 준비 / 바인딩 / 실행
+//
+//			// SQL문 준비
+//			String query = "";
+//			query += "select ";
+//			query += "person_id, name, hp, company";
+//			query += "from person ";
+//			query += "where company like ?'%' ";
+//			query += "or company like '%'? ";
+//			query += "or company like '%'?'%' ";
+//
+//			pstmt = conn.prepareStatement(query);
+//			pstmt.setString(1, str);
+//			pstmt.setString(2, str);
+//			pstmt.setString(3, str);
+//
+//			rs = pstmt.executeQuery();
+//
+//			while (rs.next()) {
+//				int personId = rs.getInt(1);
+//				String name = rs.getString(2);
+//				String hp = rs.getString(3);
+//				String company = rs.getString(4);
+//				PersonVo personVo = new PersonVo(personId, name, hp, company);
+//				personList.add(personVo);
+//			}
+//			
+//		} catch (SQLException e) {
+//			System.out.println("error:" + e);
+//		}
+//		Close();
+//		return personList;
+//	}
+	
 }
