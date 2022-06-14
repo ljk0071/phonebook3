@@ -7,8 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.javaex.vo.PersonVo;
 
+@Repository
 public class PhoneDao {
 
 	private String id = "phonedb";
@@ -103,10 +107,7 @@ public class PhoneDao {
 
 			// SQL문 준비
 			String query = "";
-			query += ("create sequence seq_person_id "
-					+ "increment by 1 "
-					+ "start with 1 "
-					+ "nocache");
+			query += ("create sequence seq_person_id " + "increment by 1 " + "start with 1 " + "nocache");
 
 			// 바인딩
 			pstmt = conn.prepareStatement(query); // 문자열을 쿼리로 만들기
@@ -258,7 +259,7 @@ public class PhoneDao {
 		Close();
 		return personList;
 	}
-	
+
 	public PersonVo Select(int personId) {
 		PersonVo personVo = new PersonVo();
 		try {
@@ -321,7 +322,7 @@ public class PhoneDao {
 		Close();
 		return count;
 	}
-	
+
 	public List<PersonVo> Search(PersonVo pVo) {
 		List<PersonVo> personList = new ArrayList<PersonVo>();
 		try {
@@ -330,33 +331,14 @@ public class PhoneDao {
 			// 3. SQL문 준비 / 바인딩 / 실행
 
 			// SQL문 준비
-			String query = "select person_id "
-					+ "    ,name "
-					+ "    ,hp "
-					+ "    ,company "
-					+ "from person "
-					+ "where name like '%'||? "
-					+ "and (hp like '%'||? "
-					+ "or hp like '%'||?||'%' "
-					+ "or hp like ?||'%') "
-					+ "and (company like '%'||? "
-					+ "or company like '%'||?||'%' "
-					+ "or company like ?||'%') "
-					+ "or name like '%'||?||'%' "
-					+ "and (hp like '%'||? "
-					+ "or hp like '%'||?||'%' "
-					+ "or hp like ?||'%') "
-					+ "and (company like '%'||? "
-					+ "or company like '%'||?||'%' "
-					+ "or company like ?||'%') "
-					+ "or name like ?||'%' "
-					+ "and (hp like '%'||? "
-					+ "or hp like '%'||?||'%' "
-					+ "or hp like ?||'%') "
-					+ "and (company like '%'||? "
-					+ "or company like '%'||?||'%' "
-					+ "or company like ?||'%') ";
-					
+			String query = "select person_id " + "    ,name " + "    ,hp " + "    ,company " + "from person "
+					+ "where name like '%'||? " + "and (hp like '%'||? " + "or hp like '%'||?||'%' "
+					+ "or hp like ?||'%') " + "and (company like '%'||? " + "or company like '%'||?||'%' "
+					+ "or company like ?||'%') " + "or name like '%'||?||'%' " + "and (hp like '%'||? "
+					+ "or hp like '%'||?||'%' " + "or hp like ?||'%') " + "and (company like '%'||? "
+					+ "or company like '%'||?||'%' " + "or company like ?||'%') " + "or name like ?||'%' "
+					+ "and (hp like '%'||? " + "or hp like '%'||?||'%' " + "or hp like ?||'%') "
+					+ "and (company like '%'||? " + "or company like '%'||?||'%' " + "or company like ?||'%') ";
 
 			pstmt = conn.prepareStatement(query);
 			pstmt.setString(1, pVo.name);
@@ -513,5 +495,5 @@ public class PhoneDao {
 //		Close();
 //		return personList;
 //	}
-	
+
 }
